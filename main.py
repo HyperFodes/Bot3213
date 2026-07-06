@@ -1,11 +1,7 @@
 import os
 import telebot
-import logging
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
 from flask import Flask, request
-
-# Configura o sistema para mostrar absolutamente tudo nos Logs do Render
-logging.basicConfig(level=logging.INFO)
 
 # ================= CONFIGURAÇÕES DO SEU BOT =================
 TOKEN_BOT = "8681521626:AAFdIzvJ0ZoRVBb5Z_CdPniMgD2W72EwK-E"
@@ -23,7 +19,6 @@ CARTEIRA_LTC = "ltc1qpcuzhk48n0udpcv64n5x8fjapf505j2qj3ketf"
 CARTEIRA_USDT = "0x1e75616b576d7f66f0cd8176ee2f70bef1fe8ddb"  # Rede BEP20
 # ============================================================
 
-# Desativamos as threads para funcionar perfeitamente em servidores gratuitos
 bot = telebot.TeleBot(TOKEN_BOT, threaded=False)
 app = Flask(__name__)
 
@@ -32,30 +27,36 @@ usuarios_comprando = {}
 # --- 1. MENSAGEM DE BOAS VINDAS COM BANNER BILÍNGUE (/start) ---
 @bot.message_handler(commands=['start'])
 def enviar_boas_vindas(message):
-    idioma_usuario = message.from_user.language_code
-    markup = InlineKeyboardMarkup(row_width=1)
-    
-    if idioma_usuario and 'pt' in idioma_usuario:
-        texto = "👋 Bem-vindo ao bot oficial do Criador!\n\nGaranta seu *ACESSO VITALÍCIO* (pague uma vez e fique para sempre) aos melhores conteúdos e arquivos de Minecraft escolhendo sua forma de pagamento:"
-        btn_pix = InlineKeyboardButton("🇧🇷 PIX (R$ 30,00)", callback_data="menu_pix")
-        btn_stars = InlineKeyboardButton("⭐ Telegram Stars (900 Stars)", callback_data="stars_900")
-        btn_crypto = InlineKeyboardButton("🪙 Crypto Dollars ($ 5.00)", callback_data="menu_crypto")
-        markup.add(btn_pix, btn_stars, btn_crypto)
-    else:
-        texto = "👋 Welcome to the Creator's official bot!\n\nGet your *LIFETIME ACCESS* (pay once, stay forever) to the best Minecraft content and files by choosing your payment method:"
-        btn_stars = InlineKeyboardButton("⭐ Telegram Stars (900 Stars)", callback_data="stars_900")
-        btn_crypto = InlineKeyboardButton("🪙 Crypto Dollars ($ 5.00)", callback_data="menu_crypto")
-        btn_pix = InlineKeyboardButton("🇧🇷 Brazilian PIX (R$ 30,00)", callback_data="menu_pix")
-        markup.add(btn_stars, btn_crypto, btn_pix)
-    
-    bot.send_photo(message.chat.id, LINK_BANNER_BOAS_VINDAS, caption=texto, reply_markup=markup, parse_mode="Markdown")
+    try:
+        print("[BOT] 📥 Comando /start recebido com sucesso no código!")
+        idioma_usuario = message.from_user.language_code
+        markup = InlineKeyboardMarkup(row_width=1)
+        
+        if idioma_usuario and 'pt' in idioma_usuario:
+            texto = "👋 Bem-vindo ao bot oficial do Criador!\n\nGaranta seu *ACESSO VITALÍCIO* (pague uma vez e fique para sempre) aos melhores conteúdos e arquivos de Minecraft escolhendo sua forma de pagamento:"
+            btn_pix = InlineKeyboardButton("🇧🇷 PIX (R$ 30,00)", callback_data="menu_pix")
+            btn_stars = InlineKeyboardButton("⭐ Telegram Stars (900 Stars)", callback_data="stars_900")
+            btn_crypto = InlineKeyboardButton("🪙 Crypto Dollars ($ 5.00)", callback_data="menu_crypto")
+            markup.add(btn_pix, btn_stars, btn_crypto)
+        else:
+            texto = "👋 Welcome to the Creator's official bot!\n\nGet your *LIFETIME ACCESS* (pay once, stay forever) to the best Minecraft content and files by choosing your payment method:"
+            btn_stars = InlineKeyboardButton("⭐ Telegram Stars (900 Stars)", callback_data="stars_900")
+            btn_crypto = InlineKeyboardButton("🪙 Crypto Dollars ($ 5.00)", callback_data="menu_crypto")
+            btn_pix = InlineKeyboardButton("🇧🇷 Brazilian PIX (R$ 30,00)", callback_data="menu_pix")
+            markup.add(btn_stars, btn_crypto, btn_pix)
+        
+        print(f"[BOT] 📤 Tentando enviar a foto para o chat: {message.chat.id}...")
+        bot.send_photo(message.chat.id, LINK_BANNER_BOAS_VINDAS, caption=texto, reply_markup=markup, parse_mode="Markdown")
+        print("[BOT] ✅ Foto enviada com sucesso sem erros!")
+        
+    except Exception as e:
+        print(f"[ERRO CRÍTICO NO START] ❌ Falha ao processar ou enviar mensagem: {e}")
 
 # --- 2. GERENCIAMENTO DOS CLIQUES NOS BOTÕES ---
 @bot.callback_query_handler(func=lambda call: True)
 def escutar_botoes(call):
     chat_id = call.message.chat.id
 
-    # Opção PIX (Em Português)
     if call.data == "menu_pix":
         usuarios_comprando[chat_id] = "PIX - R$ 30"
         texto_instrucao = (
@@ -68,7 +69,6 @@ def escutar_botoes(call):
         )
         bot.send_photo(chat_id, LINK_QRCODE_PERMANENTE, caption=texto_instrucao, parse_mode="Markdown")
 
-    # Opção Telegram Stars (Fatura automática nativa)
     elif call.data == "stars_900":
         bot.send_invoice(
             chat_id=chat_id,
@@ -80,7 +80,6 @@ def escutar_botoes(call):
             prices=[LabeledPrice(label="Stars", amount=900)]
         )
 
-    # Opção Crypto Dollars (Em Inglês)
     elif call.data == "menu_crypto":
         usuarios_comprando[chat_id] = "Crypto - $ 5.00"
         texto_crypto = (
@@ -96,7 +95,6 @@ def escutar_botoes(call):
         )
         bot.send_message(chat_id, texto_crypto, parse_mode="Markdown")
 
-    # Sistema de aprovação do Admin (Para você)
     elif call.data.startswith("aprovar_"):
         id_cliente = call.data.split("_")[1]
         try:
@@ -117,13 +115,11 @@ def receber_comprovante(message):
     chat_id = message.chat.id
     if chat_id in usuarios_comprando:
         forma_pagamento = usuarios_comprando[chat_id]
-        
         markup_admin = InlineKeyboardMarkup()
         markup_admin.add(
             InlineKeyboardButton("✅ Aprovar", callback_data=f"aprovar_{chat_id}"),
             InlineKeyboardButton("❌ Recusar", callback_data=f"recusar_{chat_id}")
         )
-        
         bot.send_photo(
             SEU_ID_TELEGRAM, 
             message.photo[-1].file_id, 
@@ -147,10 +143,19 @@ def pagamento_stars_sucesso(message):
 # --- 5. INFRAESTRUTURA PARA RODAR NA WEB (FLASK) ---
 @app.route('/' + TOKEN_BOT, methods=['POST'])
 def getMessage():
-    json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
+    try:
+        json_string = request.get_data().decode('utf-8')
+        print(f"[FLASK] 🌐 Nova requisição bruta recebida do Telegram!")
+        update = telebot.types.Update.de_json(json_string)
+        
+        print(f"[FLASK] 🔄 Repassando Update ID {update.update_id} para o bot processar...")
+        bot.process_new_updates([update])
+        
+        print("[FLASK] ✔️ Processamento concluído com sucesso.")
+        return "!", 200
+    except Exception as server_error:
+        print(f"[ERRO NO SERVIDOR] ❌ Falha catastrófica na rota do Webhook: {server_error}")
+        return "Erro", 500
 
 @app.route("/")
 def webhook():
