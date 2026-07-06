@@ -8,9 +8,9 @@ TOKEN_BOT = "8681521626:AAFdIzvJ0ZoRVBb5Z_CdPniMgD2W72EwK-E"
 SEU_ID_TELEGRAM = 7665685378
 ID_GRUPO_VIP = -1004484883734
 
-# Links das imagens do Imgur oficiais configurados!
-LINK_QRCODE_PERMANENTE = "https://i.imgur.com/fjrCTQ0.jpeg"
-LINK_BANNER_BOAS_VINDAS = "https://i.imgur.com/fjrCTQ0.jpeg"
+# IDs das imagens direto do servidor do Telegram (Carregamento Imediato)
+LINK_QRCODE_PERMANENTE = "AgACAgIAAxkBAAM6ZpjNre6i921LzFf5v_R_89A8b_wAAizOMRvm_YlI_eF_0Hn09bABAAMCAANzAAM1BA"
+LINK_BANNER_BOAS_VINDAS = "AgACAgIAAxkBAAM6ZpjNre6i921LzFf5v_R_89A8b_wAAizOMRvm_YlI_eF_0Hn09bABAAMCAANzAAM1BA"
 
 # Suas carteiras oficiais configuradas:
 CARTEIRA_BTC = "bc1qv0vt52xa356n5sfz6ayq9enfr77teemr4htqtf"
@@ -138,28 +138,3 @@ def processar_pre_checkout(pre_checkout_query):
 def pagamento_stars_sucesso(message):
     chat_id = message.chat.id
     link_grupo = bot.create_chat_invite_link(ID_GRUPO_VIP, member_limit=1)
-    bot.send_message(chat_id, f"🎉 Thank you for your payment in Stars! Your lifetime access is granted.\n\nClick here to join permanently: {link_grupo.invite_link}")
-
-# --- 5. INFRAESTRUTURA WEB ---
-@app.route('/' + TOKEN_BOT, methods=['POST'])
-def getMessage():
-    try:
-        json_string = request.get_data().decode('utf-8')
-        print("\n[FLASK] 🌐 Nova requisição interceptada vinda do Telegram!", flush=True)
-        update = telebot.types.Update.de_json(json_string)
-        
-        if update.message:
-            print(f"[FLASK] 💬 Mensagem de texto lida: '{update.message.text}' do usuário: {update.message.chat.id}", flush=True)
-            
-        bot.process_new_updates([update])
-        return "!", 200
-    except Exception as server_error:
-        print(f"[ERRO NO SERVIDOR] ❌ Falha na rota principal: {server_error}", flush=True)
-        return "Erro", 500
-
-@app.route("/")
-def webhook():
-    return "Bot está vivo!", 200
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
