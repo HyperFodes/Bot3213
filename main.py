@@ -28,7 +28,7 @@ usuarios_comprando = {}
 @bot.message_handler(commands=['start'])
 def enviar_boas_vindas(message):
     try:
-        print("[BOT] 📥 Comando /start recebido com sucesso no código!")
+        print("[BOT] 📥 Comando /start entrou na função com sucesso!", flush=True)
         idioma_usuario = message.from_user.language_code
         markup = InlineKeyboardMarkup(row_width=1)
         
@@ -45,12 +45,12 @@ def enviar_boas_vindas(message):
             btn_pix = InlineKeyboardButton("🇧🇷 Brazilian PIX (R$ 30,00)", callback_data="menu_pix")
             markup.add(btn_stars, btn_crypto, btn_pix)
         
-        print(f"[BOT] 📤 Tentando enviar a foto para o chat: {message.chat.id}...")
+        print(f"[BOT] 📤 Tentando disparar 'send_photo' para o Chat ID: {message.chat.id}...", flush=True)
         bot.send_photo(message.chat.id, LINK_BANNER_BOAS_VINDAS, caption=texto, reply_markup=markup, parse_mode="Markdown")
-        print("[BOT] ✅ Foto enviada com sucesso sem erros!")
+        print("[BOT] ✅ Foto enviada sem estourar erros internos!", flush=True)
         
     except Exception as e:
-        print(f"[ERRO CRÍTICO NO START] ❌ Falha ao processar ou enviar mensagem: {e}")
+        print(f"[ERRO NO START] ❌ Falha interna ao tentar responder o usuário: {e}", flush=True)
 
 # --- 2. GERENCIAMENTO DOS CLIQUES NOS BOTÕES ---
 @bot.callback_query_handler(func=lambda call: True)
@@ -109,7 +109,7 @@ def escutar_botoes(call):
         bot.send_message(id_cliente, "❌ Pagamento recusado / Payment declined.\nSe achar que foi um erro, entre em contato com o suporte: @HardHandsG")
         bot.edit_message_text("❌ Pagamento recusado.", chat_id, call.message.message_id)
 
-# --- 3. RECEBER COMPROVANTE (FOTO DO PIX OU CRYPTO) ---
+# --- 3. RECEBER COMPROVANTE ---
 @bot.message_handler(content_types=['photo'])
 def receber_comprovante(message):
     chat_id = message.chat.id
@@ -129,7 +129,7 @@ def receber_comprovante(message):
         bot.send_message(chat_id, "⏳ Comprovante recebido! Aguarde a verificação.\n⏳ Receipt received! Please wait for verification.")
         del usuarios_comprando[chat_id]
 
-# --- 4. ENTREGA AUTOMÁTICA VIA STARS ---
+# --- 4. ENTREGA VIA STARS ---
 @bot.pre_checkout_query_handler(func=lambda query: True)
 def processar_pre_checkout(pre_checkout_query):
     bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
@@ -140,21 +140,21 @@ def pagamento_stars_sucesso(message):
     link_grupo = bot.create_chat_invite_link(ID_GRUPO_VIP, member_limit=1)
     bot.send_message(chat_id, f"🎉 Thank you for your payment in Stars! Your lifetime access is granted.\n\nClick here to join permanently: {link_grupo.invite_link}")
 
-# --- 5. INFRAESTRUTURA PARA RODAR NA WEB (FLASK) ---
+# --- 5. INFRAESTRUTURA WEB ---
 @app.route('/' + TOKEN_BOT, methods=['POST'])
 def getMessage():
     try:
         json_string = request.get_data().decode('utf-8')
-        print(f"[FLASK] 🌐 Nova requisição bruta recebida do Telegram!")
+        print("\n[FLASK] 🌐 Nova requisição interceptada vinda do Telegram!", flush=True)
         update = telebot.types.Update.de_json(json_string)
         
-        print(f"[FLASK] 🔄 Repassando Update ID {update.update_id} para o bot processar...")
+        if update.message:
+            print(f"[FLASK] 💬 Mensagem de texto lida: '{update.message.text}' do usuário: {update.message.chat.id}", flush=True)
+            
         bot.process_new_updates([update])
-        
-        print("[FLASK] ✔️ Processamento concluído com sucesso.")
         return "!", 200
     except Exception as server_error:
-        print(f"[ERRO NO SERVIDOR] ❌ Falha catastrófica na rota do Webhook: {server_error}")
+        print(f"[ERRO NO SERVIDOR] ❌ Falha na rota principal: {server_error}", flush=True)
         return "Erro", 500
 
 @app.route("/")
