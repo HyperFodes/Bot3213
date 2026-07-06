@@ -10,7 +10,7 @@ ID_GRUPO_VIP = -1004484883734
 
 # Links das imagens do Imgur oficiais configurados!
 LINK_QRCODE_PERMANENTE = "https://i.imgur.com/fjrCTQ0.jpeg"
-LINK_BANNER_BOAS_VINDAS = "https://imgur.com/a/I0lf0m7.jpeg"
+LINK_BANNER_BOAS_VINDAS = "https://i.imgur.com/fjrCTQ0.jpeg"
 
 # Suas carteiras oficiais configuradas:
 CARTEIRA_BTC = "bc1qv0vt52xa356n5sfz6ayq9enfr77teemr4htqtf"
