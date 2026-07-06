@@ -1,7 +1,11 @@
 import os
 import telebot
+import logging
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
 from flask import Flask, request
+
+# Configura o sistema para mostrar absolutamente tudo nos Logs do Render
+logging.basicConfig(level=logging.INFO)
 
 # ================= CONFIGURAÇÕES DO SEU BOT =================
 TOKEN_BOT = "8681521626:AAFdIzvJ0ZoRVBb5Z_CdPniMgD2W72EwK-E"
@@ -19,7 +23,8 @@ CARTEIRA_LTC = "ltc1qpcuzhk48n0udpcv64n5x8fjapf505j2qj3ketf"
 CARTEIRA_USDT = "0x1e75616b576d7f66f0cd8176ee2f70bef1fe8ddb"  # Rede BEP20
 # ============================================================
 
-bot = telebot.TeleBot(TOKEN_BOT)
+# Desativamos as threads para funcionar perfeitamente em servidores gratuitos
+bot = telebot.TeleBot(TOKEN_BOT, threaded=False)
 app = Flask(__name__)
 
 usuarios_comprando = {}
