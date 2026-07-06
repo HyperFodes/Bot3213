@@ -121,10 +121,12 @@ def escutar_botoes(call):
         bot.edit_message_text("❌ Pagamento recusado.", chat_id, call.message.message_id)
 
 
-# --- 3. RECEBER COMPROVANTE ---
+# --- 3. RECEBER COMPROVANTE E EXTRATOR DE FILE ID ---
 @bot.message_handler(content_types=['photo'])
 def receber_comprovante(message):
     chat_id = message.chat.id
+    
+    # Se o usuário estiver no meio de uma compra, processa o comprovante normalmente
     if chat_id in usuarios_comprando:
         forma_pagamento = usuarios_comprando[chat_id]
         markup_admin = InlineKeyboardMarkup()
@@ -140,6 +142,11 @@ def receber_comprovante(message):
         )
         bot.send_message(chat_id, "⏳ Comprovante recebido! Aguarde a verificação.\n⏳ Receipt received! Please wait for verification.")
         del usuarios_comprando[chat_id]
+        
+    # SEGREDO: Se você mandar uma foto sem estar comprando nada, ele te dá o File ID!
+    else:
+        file_id_exclusivo = message.photo[-1].file_id
+        bot.reply_to(message, f"📸 *File ID exclusivo do seu bot:*\n\n`{file_id_exclusivo}`\n\n👆 Clique no código para copiar e coloque nas variáveis do seu main.py!", parse_mode="Markdown")
 
 
 # --- 4. ENTREGA VIA STARS ---
