@@ -107,18 +107,23 @@ def escutar_botoes(call):
         bot.send_message(chat_id, texto_crypto, parse_mode="Markdown")
 
     elif call.data.startswith("aprovar_"):
+        bot.answer_callback_query(call.id) # Evita spam de repetição do clique
         id_cliente = call.data.split("_")[1]
         try:
             link_grupo = bot.create_chat_invite_link(ID_GRUPO_VIP, member_limit=1)
             bot.send_message(id_cliente, f"✅ Seu pagamento foi aprovado! / Your payment has been approved!\n\nClique no link abaixo para entrar no grupo VIP permanentemente:\nClick the link below to join the VIP group permanently:\n\n{link_grupo.invite_link}")
-            bot.edit_message_text("✅ Cliente aprovado e link permanente enviado!", chat_id, call.message.message_id)
+            bot.edit_message_caption("✅ Cliente aprovado e link permanente enviado!", chat_id=chat_id, message_id=call.message.message_id)
         except Exception as e:
             bot.send_message(chat_id, f"Erro ao gerar link. Verifique se o bot é admin do grupo. Erro: {e}")
 
     elif call.data.startswith("recusar_"):
+        bot.answer_callback_query(call.id) # Evita spam de repetição do clique
         id_cliente = call.data.split("_")[1]
-        bot.send_message(id_cliente, "❌ Pagamento recusado / Payment declined.\nSe achar que foi um erro, entre em contato com o suporte: @HardHandsG")
-        bot.edit_message_text("❌ Pagamento recusado.", chat_id, call.message.message_id)
+        try:
+            bot.send_message(id_cliente, "❌ Pagamento recusado / Payment declined.\nSe achar que foi um erro, entre em contato com o suporte: @HardHandsG")
+            bot.edit_message_caption("❌ Pagamento recusado.", chat_id=chat_id, message_id=call.message.message_id)
+        except Exception as e:
+            bot.send_message(chat_id, f"Erro ao processar recusa. Erro: {e}")
 
 
 # --- 3. RECEBER COMPROVANTE ---
