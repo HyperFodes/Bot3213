@@ -31,13 +31,13 @@ def enviar_boas_vindas(message):
     markup = InlineKeyboardMarkup(row_width=1)
     
     if idioma_usuario and 'pt' in idioma_usuario:
-        texto = "👋 Bem-vindo ao bot oficial do Criador!\n\nGaranta seu **ACESSO VITALÍCIO** (pague uma vez e fique para sempre) aos melhores conteúdos e arquivos de Minecraft escolhendo sua forma de pagamento:"
+        texto = "👋 Bem-vindo ao bot oficial do Criador!\n\nGaranta seu *ACESSO VITALÍCIO* (pague uma vez e fique para sempre) aos melhores conteúdos e arquivos de Minecraft escolhendo sua forma de pagamento:"
         btn_pix = InlineKeyboardButton("🇧🇷 PIX (R$ 30,00)", callback_data="menu_pix")
         btn_stars = InlineKeyboardButton("⭐ Telegram Stars (900 Stars)", callback_data="stars_900")
         btn_crypto = InlineKeyboardButton("🪙 Crypto Dollars ($ 5.00)", callback_data="menu_crypto")
         markup.add(btn_pix, btn_stars, btn_crypto)
     else:
-        texto = "👋 Welcome to the Creator's official bot!\n\nGet your **LIFETIME ACCESS** (pay once, stay forever) to the best Minecraft content and files by choosing your payment method:"
+        texto = "👋 Welcome to the Creator's official bot!\n\nGet your *LIFETIME ACCESS* (pay once, stay forever) to the best Minecraft content and files by choosing your payment method:"
         btn_stars = InlineKeyboardButton("⭐ Telegram Stars (900 Stars)", callback_data="stars_900")
         btn_crypto = InlineKeyboardButton("🪙 Crypto Dollars ($ 5.00)", callback_data="menu_crypto")
         btn_pix = InlineKeyboardButton("🇧🇷 Brazilian PIX (R$ 30,00)", callback_data="menu_pix")
@@ -54,11 +54,11 @@ def escutar_botoes(call):
     if call.data == "menu_pix":
         usuarios_comprando[chat_id] = "PIX - R$ 30"
         texto_instrucao = (
-            f"⚡ **Plano Vitalício de R$ 30 selecionado!**\n\n"
+            f"⚡ *Plano Vitalício de R$ 30 selecionado!*\n\n"
             f"1️⃣ Escaneie o QR Code acima no app do seu banco.\n"
-            f"2️⃣ **ATENÇÃO:** Digite manualmente o valor exato de: **R$ 30,00**\n\n"
+            f"2️⃣ *ATENÇÃO:* Digite manualmente o valor exato de: *R$ 30,00*\n\n"
             f"⚠️ *Se você digitar um valor diferente, seu acesso não será aprovado.*\n\n"
-            f"👇 Após fazer o pagamento, envie a **FOTO DO COMPROVANTE** aqui no chat para liberação imediata!\n\n"
+            f"👇 Após fazer o pagamento, envie a *FOTO DO COMPROVANTE* aqui no chat para liberação imediata!\n\n"
             f"ℹ️ Precisa de ajuda? Fale com o suporte: @HardHandsG"
         )
         bot.send_photo(chat_id, LINK_QRCODE_PERMANENTE, caption=texto_instrucao, parse_mode="Markdown")
@@ -79,14 +79,14 @@ def escutar_botoes(call):
     elif call.data == "menu_crypto":
         usuarios_comprando[chat_id] = "Crypto - $ 5.00"
         texto_crypto = (
-            f"🪙 **Lifetime VIP Access — Crypto Dollars**\n\n"
-            f"Value: **$ 5.00 USD**\n\n"
+            f"🪙 *Lifetime VIP Access — Crypto Dollars*\n\n"
+            f"Value: *$ 5.00 USD*\n\n"
             f"Send the exact amount to one of the wallets below (tap to copy):\n\n"
-            f"🔹 **USDT (Network: BEP-20 / BSC):**\n`{CARTEIRA_USDT}`\n\n"
-            f"🔸 **LTC (Litecoin - Recommended/Low Fees):**\n`{CARTEIRA_LTC}`\n\n"
-            f"🔹 **BTC (Bitcoin):**\n`{CARTEIRA_BTC}`\n\n"
-            f"🔸 **ETH (Ethereum):**\n`{CARTEIRA_ETH}`\n\n"
-            f"👇 After sending the payment, please upload the **TRANSACTION RECEIPT/SCREENSHOT** here for manual approval!\n\n"
+            f"🔹 *USDT (Network: BEP-20 / BSC):*\n`{CARTEIRA_USDT}`\n\n"
+            f"🔸 *LTC (Litecoin - Recommended/Low Fees):*\n`{CARTEIRA_LTC}`\n\n"
+            f"🔹 *BTC (Bitcoin):*\n`{CARTEIRA_BTC}`\n\n"
+            f"🔸 *ETH (Ethereum):*\n`{CARTEIRA_ETH}`\n\n"
+            f"👇 After sending the payment, please upload the *TRANSACTION RECEIPT/SCREENSHOT* here for manual approval!\n\n"
             f"ℹ️ Need help? Contact support: @HardHandsG"
         )
         bot.send_message(chat_id, texto_crypto, parse_mode="Markdown")
@@ -106,7 +106,7 @@ def escutar_botoes(call):
         bot.send_message(id_cliente, "❌ Pagamento recusado / Payment declined.\nSe achar que foi um erro, entre em contato com o suporte: @HardHandsG")
         bot.edit_message_text("❌ Pagamento recusado.", chat_id, call.message.message_id)
 
-# --- 3. RECEBER COMPROVANTE (FOTO DO PIX OU CRYIPO) ---
+# --- 3. RECEBER COMPROVANTE (FOTO DO PIX OU CRYPTO) ---
 @bot.message_handler(content_types=['photo'])
 def receber_comprovante(message):
     chat_id = message.chat.id
@@ -115,7 +115,7 @@ def receber_comprovante(message):
         
         markup_admin = InlineKeyboardMarkup()
         markup_admin.add(
-            InlineKeyboardButton("✅ ...Aprovar", callback_data=f"aprovar_{chat_id}"),
+            InlineKeyboardButton("✅ Aprovar", callback_data=f"aprovar_{chat_id}"),
             InlineKeyboardButton("❌ Recusar", callback_data=f"recusar_{chat_id}")
         )
         
@@ -149,7 +149,6 @@ def getMessage():
 
 @app.route("/")
 def webhook():
-    bot.remove_webhook()
     return "Bot está vivo!", 200
 
 if __name__ == "__main__":
